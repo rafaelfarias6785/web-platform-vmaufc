@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <style>
+    input {
+      background-color: yellow;
+    }
+    body {
+      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+      font-size: small;
+    }
+    strong {
+      color: blue;
+    }
+  </style>
+</head>
+
+
+<body>
+  <p>
+  <h1>Configuração do equipamento Cisco VG202 (2 canais)</h1>
+  <h2>O que Precisa?</h2>
+  <input type="text" id="inputnumerovoip" placeholder="Nº do Voip" /> (Formar o numero: 5+NºCooperativa+NºAgencia)<br>
+  <input type="text" id="inputnomedaagencia" placeholder="Nome da Agencia" />  <a href="https://mti-portal.sicredi.net/ntools/noc-tools/index.php target="_blank"> Portal MTI Sicredi</a> (Não deve conter espaços)<br>
+  <input type="text" id="inputipdogateway" placeholder="IP do Gateway" />
+  &nbsp; <button id='start'> Gerar Script</button>
+  <hr>
+  </p>
+
+
+  <h2>Script para aplicar no equipamento:</h2>
+  <p>
+    <span id="Procedimento">
+      <hr>
+  </p>
+
+
+  <h2>Salvar o arquivo com o seguinte nome:</h2>
+  <p>
+    <span id="FechamentoChamado">
+  </p>
+</body>
+</html>
+
+
+<script>
+  var myStart = document.getElementById('start');
+  myStart.addEventListener('click', function (event) {
+//pega os inputs após apertar start;
+    var NumeroVoip = document.getElementById('inputnumerovoip');
+    var NomeDaAgencia = document.getElementById('inputnomedaagencia');
+    var IpDoGateway = document.getElementById('inputipdogateway');
+
+//troca os valores;
+    document.getElementById('Procedimento').innerHTML = (`
+hostname <strong> `+ NomeDaAgencia.value + `</strong><br>
+!<br>
+boot-start-marker<br>
+boot-end-marker<br>
+!<br>
+aqm-register-fnf<br>
+!<br>
+enable password <b>wttlInfra01#</b><br>
+!<br>
+no aaa new-model<br>
+!<br>
+no ip domain lookup<br>
+ip domain name sicredi.com.br<br>
+ip cef<br>
+no ipv6 cef<br>
+!<br>
+voice service voip<br>
+allow-connections sip to sip<br>
+sip<br>
+!<br>
+voice-card 0<br>
+!<br>
+username ADMIN privilege 15 password 0 <b>wttlInfra01#</b><br>
+!<br>
+voice class codec 1<br>
+codec preference 1 g729r8<br>
+codec preference 2 g729br8<br>
+!<br>
+control-plane<br>
+!<br>
+voice-port 0/0<br>
+cptone BR<br>
+timeouts ringing infinity<br>
+station-id name <strong>`+ NomeDaAgencia.value + `</strong><br>
+station-id number <strong>`+ NumeroVoip.value + `</strong><br>
+caller-id enable<br>
+!<br>
+voice-port 0/1<br>
+cptone BR<br>
+timeouts ringing infinity<br>
+station-id name <strong>`+ NomeDaAgencia.value + `</strong><br>
+station-id number <strong>`+ NumeroVoip.value + `</strong><br>
+caller-id enable<br>
+!<br>
+mgcp behavior rsip-range tgcp-only<br>
+mgcp behavior comedia-role none<br>
+mgcp behavior comedia-check-media-src disable<br>
+mgcp behavior comedia-sdp-force disable<br>
+!<br>
+mgcp profile default<br>
+!<br>
+dial-peer voice 10 pots<br>
+destination-pattern <strong>`+ NumeroVoip.value + `</strong><br>
+port 0/0<br>
+forward-digits 0<br>
+!<br>
+dial-peer voice 11 pots<br>
+destination-pattern <strong>`+ NumeroVoip.value + `</strong><br>
+port 0/1<br>
+forward-digits 0<br>
+!<br>
+dial-peer voice 20 voip<br>
+destination-pattern .T<br>
+session protocol sipv2<br>
+session target ipv4:<b>172.25.133.22</b><br>
+session transport udp<br>
+voice-class codec 1<br>
+voice-class sip options-keepalive up-interval 6 down-interval 5 retry 2<br>
+dtmf-relay rtp-nte<br>
+no vad<br>
+!<br>
+dial-peer voice 30 voip<br>
+destination-pattern .T<br>
+session protocol sipv2<br>
+session target ipv4:<b>172.25.133.21</b><br>
+session transport udp<br>
+dtmf-relay rtp-nte<br>
+voice-class codec 1<br>
+voice-class sip options-keepalive up-interval 6 down-interval 5 retry 2<br>
+no vad<br>
+!<br>
+dial-peer voice 40 voip<br>
+destination-pattern .T<br>
+session protocol sipv2<br>
+session target ipv4:<b>172.25.133.121</b><br>
+voice-class codec 1<br>
+session transport udp<br>
+dtmf-relay rtp-nte<br>
+voice-class sip options-keepalive up-interval 6 down-interval 5 retry 2<br>
+no vad<br>
+!<br>
+line con 0<br>
+logging synchronous<br>
+no modem enable<br>
+line aux 0<br>
+line vty 0 4<br>
+password <b>wttlInfra01#</b><br>
+logging synchronous<br>
+login local<br>
+transport input telnet<br>
+!<br>
+end<br>
+WR`);
+
+  document.getElementById('FechamentoChamado').innerHTML = (
+      `VG_` + NumeroVoip.value    +
+        `_` + IpDoGateway.value   +
+        `_` + NomeDaAgencia.value +
+        `.txt`
+  );
+
+  }, false);
+
+</script>

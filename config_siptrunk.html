@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <style>
+    input {
+      background-color: yellow;
+    }
+    body {
+      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+      font-size: small;
+    }
+    strong {
+      color: blue;
+    }
+  </style>
+</head>
+
+
+<body>
+  <p>
+  <h1>Configurar Tronco SIP para equipamento de Terceiros (Intelbrás)</h1>
+  <h2>O que Precisa?</h2>
+  <input type="text" id="inputnumerovoip" placeholder="Nº do Voip" /> (Formar o numero: 5+NºCooperativa+NºAgencia)<br>
+  <input type="text" id="inputnomedaagencia" placeholder="Nome da Agencia" />
+  <a href="https://mti-portal.sicredi.net/ntools/noc-tools/index.php target="_blank"> Portal MTI Sicredi</a> <br>
+  <input type="text" id="inputipdogateway" placeholder="IP do Gateway" />
+  &nbsp; <button id='start'> Gerar Procedimento</button>
+  <hr>
+  </p>
+
+
+  <h2>Procedimento:</h2>
+  <p>
+    <span id="Procedimento">
+      <hr>
+  </p>
+
+
+  <h2>Fechamento do Chamado:</h2>
+  <p>
+    <span id="FechamentoChamado">
+  </p>
+</body>
+</html>
+
+
+<script>
+  var myStart = document.getElementById('start');
+  myStart.addEventListener('click', function (event) {
+//pega os inputs após apertar start;
+    var NumeroVoip = document.getElementById('inputnumerovoip');
+    var NomeDaAgencia = document.getElementById('inputnomedaagencia');
+    var IpDoGateway = document.getElementById('inputipdogateway');
+
+//troca os valores;
+    document.getElementById('Procedimento').innerHTML = (`
+  <p>
+  1. Call Routting / Route Hunt / Route Pattern - busca Route Pattern semelhante;<br>
+  2. Clica no botão de copia e após altera as informações;<br>
+  Route Pattern: <strong> `+ NumeroVoip.value + `</strong><br>
+  Description: <strong> `+ NomeDaAgencia.value + `</strong> <br>
+  >> BOTAO SAVE >> <br>
+  </p>
+  <p>
+  4. Em Gateway/Route List - >>EDIT<br>
+  5. Clica em ADD NEW<br>
+  Trunk Type: Tronco SIP<br>
+  >> NEXT >><br>
+  Device Name: <strong>SIP-CU-`+ IpDoGateway.value + `</strong><br>
+  Description: <strong> `+ NomeDaAgencia.value + `</strong><br>
+  Device Pool: <b> DP-UA<br></b>
+  Media Resource Group List: <b> MRGL GERAL<br></b>
+  Location: <b>TRONCOS-UAs<br></b>
+  Calling Search Space: <b> CSS-IN-UA<br></b>
+  SIP Information / Destination Address: <strong> `+ IpDoGateway.value + `</strong><br>
+  SIP Trunk Security Profile: <b> SIP PROFILE UA<br></b>
+  SIP Profile:<b> Sip Profile - AUDIOCODES - DTMF 101<br></b>
+  >> BOTAO SAVE >>
+  </p>
+ <p>
+  6. Call Routting / Route Hunt / Route Pattern - busca ramal da UA;<br>
+  Em Gateway/Route List - >>FIND e adiciona o trunk: <strong>SIP-CU-`+ IpDoGateway.value + `</strong><br>
+  >> BOTAO SAVE >><br>
+  7. Call Routting / Route Hunt / Route Pattern - busca ramal da UA;<br>
+  >> BOTAO COPY >><br>
+  Em Route Pattern Adiciona 4 vezes o X após o numero<br>
+  >>SAVE>><br>
+  Em Gateway/Route List - >>EDIT<br>
+  Botão reset<br>
+  >> BOTAO RESET >><br>
+  >> BOTAO RESTART >><br>
+  </p> `  );
+
+  document.getElementById('FechamentoChamado').innerHTML = (
+      `Rota SIP Configurada conforme os dados informados:<br>
+        nº Voip: <strong> `+ NumeroVoip.value + `</strong><br>
+        IP: <strong>`+ IpDoGateway.value + `</strong><br>
+        Favor prosseguir com a configuração da Central conforme manual em anexo: Integração de parceiros V1.1.pdf<br>
+  <br> `);
+
+  }, false);
+
+</script>
